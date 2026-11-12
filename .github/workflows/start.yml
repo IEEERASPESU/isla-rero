@@ -1,0 +1,64 @@
+# Opening an issue in this repo = "start my clock". This creates the team's private repo from the
+# template and invites the person who opened the issue. Replaces GitHub Classroom (retired Aug 2026).
+# Needs one repo secret, ORG_TOKEN: a classic personal access token with the "repo" scope, made by
+# an org owner who can also read the template repo.
+name: Start
+on:
+  issues:
+    types: [opened]
+  workflow_dispatch:
+    inputs:
+      user:
+        description: GitHub username to start (organiser override, ignores the opening hours)
+        required: true
+permissions:
+  issues: write
+env:
+  OPEN_AT: "2026-11-13T10:00:00+05:30"
+  CLOSE_AT: "2026-11-13T18:00:00+05:30"
+  WINDOW_HOURS: "3"
+  ORG: IEEERASPESU
+  TEMPLATE: ataylus/isla-rero-round1-template
+  PREFIX: isla-rero-r1-
+jobs:
+  start:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    concurrency: start-${{ github.event.issue.user.login || inputs.user }}
+    steps:
+      - name: Create the team repo
+        env:
+          GH_TOKEN: ${{ secrets.ORG_TOKEN }}
+          WHO: ${{ github.event.issue.user.login || inputs.user }}
+          ISSUE: ${{ github.event.issue.number }}
+          ISSUE_TOKEN: ${{ github.token }}
+        run: |
+          set -u
+          say() {
+            echo "$1"
+            if [ -n "$ISSUE" ]; then GH_TOKEN="$ISSUE_TOKEN" gh issue close "$ISSUE" -R "$GITHUB_REPOSITORY" -c "$1"; fi
+          }
+          who=$(echo "$WHO" | tr 'A-Z' 'a-z')
+          case "$who" in ""|*[!a-z0-9-]*) say "That username does not look right. Tell the organisers."; exit 1;; esac
+          now=$(date +%s); open=$(date -d "$OPEN_AT" +%s); close=$(date -d "$CLOSE_AT" +%s)
+          if [ -n "$ISSUE" ] && [ "$now" -lt "$open" ]; then
+            say "Round 1 is not open yet. It opens at $(TZ=Asia/Kolkata date -d "$OPEN_AT" '+%H:%M IST on %A %d %B'). Open a new issue then."
+            exit 0
+          fi
+          if [ -n "$ISSUE" ] && [ "$now" -ge "$close" ]; then say "Round 1 has closed."; exit 0; fi
+          repo="$ORG/$PREFIX$who"
+          if gh api "repos/$repo" >/dev/null 2>&1; then
+            say "@$WHO you already have a repo: https://github.com/$repo (if you cannot see it, accept the invite at https://github.com/$repo/invitations). Your clock started when it was created and does not restart."
+            exit 0
+          fi
+          if ! gh repo create "$repo" --private --template "$TEMPLATE"; then
+            say "@$WHO something went wrong on our side while creating your repo. Tell the organisers in the WhatsApp group. Your clock has not started."
+            exit 1
+          fi
+          sleep 3
+          if ! gh api -X PUT "repos/$repo/collaborators/$WHO" -f permission=push >/dev/null; then
+            say "@$WHO your repo exists but the invite failed. Tell the organisers in the WhatsApp group right away."
+            exit 1
+          fi
+          end=$(( now + WINDOW_HOURS * 3600 )); [ "$end" -gt "$close" ] && end=$close
+          say "@$WHO your clock has started. **Step 1:** accept the invite at https://github.com/$repo/invitations (it is also in your email). **Step 2:** open https://github.com/$repo and read the README. Your cutoff is **$(TZ=Asia/Kolkata date -d "@$end" '+%H:%M:%S IST')**. Only pushes before then count. Good luck, and mind the lagoon."
