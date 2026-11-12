@@ -16,7 +16,7 @@ on:
 permissions:
   issues: write
 env:
-  OPEN_AT: "2026-11-13T10:00:00+05:30"
+  OPEN_AT: "2026-11-12T10:00:00+05:30"
   CLOSE_AT: "2026-11-13T22:00:00+05:30"
   WINDOW_HOURS: "3"
   ORG: IEEERASPESU
