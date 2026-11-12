@@ -4,7 +4,7 @@ Round 1 is open from **10:00 to 22:00 IST on Friday 13 November 2026**.
 
 ## How to start (team leader only)
 
-1. Make sure you are logged in to GitHub **as the team leader**.
+1. Make sure you are logged in to GitHub **as the team leader**, with the GitHub account you registered.
 2. Click **[START MY CLOCK](https://github.com/IEEERASPESU/isla-rero/issues/new?title=START)** and press **Create** (you can leave the box empty).
 3. Within a minute a reply appears on your issue with a link to your private repo and an invite. Accept the invite.
 4. Everything else (the problem, the rules, how to submit) is in the README of your repo.
@@ -13,7 +13,7 @@ Round 1 is open from **10:00 to 22:00 IST on Friday 13 November 2026**.
 
 - **Your 3 hours start the moment you click.** They do not pause and they do not restart.
 - Nothing pushed after 22:00 IST counts, so start by **19:00 IST** if you want your full 3 hours.
-- **One repo per team, created by the team leader.** Teammates work through the leader's repo.
+- **Only the registered team leader's account can start.** Registered teammates are invited to the same repo automatically.
 - You need Python 3.9 or newer with `numpy` (and `matplotlib` for pictures), or a GitHub Codespace.
 - AI tools are allowed.
 

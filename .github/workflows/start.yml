@@ -2,6 +2,8 @@
 # template and invites the person who opened the issue. Replaces GitHub Classroom (retired Aug 2026).
 # Needs one repo secret, ORG_TOKEN: a classic personal access token with the "repo" scope, made by
 # an org owner who can also read the template repo.
+# Needs one repo variable, TEAMS: one line per team, GitHub usernames separated by spaces, the
+# team leader FIRST. Only a leader can start. Teammates on the same line are invited to the repo.
 name: Start
 on:
   issues:
@@ -32,6 +34,7 @@ jobs:
           WHO: ${{ github.event.issue.user.login || inputs.user }}
           ISSUE: ${{ github.event.issue.number }}
           ISSUE_TOKEN: ${{ github.token }}
+          TEAMS: ${{ vars.TEAMS }}
         run: |
           set -u
           say() {
@@ -46,6 +49,17 @@ jobs:
             exit 0
           fi
           if [ -n "$ISSUE" ] && [ "$now" -ge "$close" ]; then say "Round 1 has closed."; exit 0; fi
+          teams=$(echo "${TEAMS:-}" | tr 'A-Z,\t' 'a-z  ' | tr -d '@\r')
+          line=$(echo "$teams" | awk -v u="$who" '$1==u {print; exit}')
+          if [ -n "$ISSUE" ] && [ -z "$line" ]; then
+            leader=$(echo "$teams" | awk -v u="$who" '{for (i=2; i<=NF; i++) if ($i==u) {print $1; exit}}')
+            if [ -n "$leader" ]; then
+              say "@$WHO only your team leader (@$leader) can start the clock. Ask them to click Start. You will get an invite to the team repo when they do."
+            else
+              say "@$WHO this GitHub account is not registered as a team leader for the ReRo Online Hackathon 2026, so no repo was created. If that is a mistake, message the organisers in the WhatsApp group."
+            fi
+            exit 0
+          fi
           repo="$ORG/$PREFIX$who"
           if gh api "repos/$repo" >/dev/null 2>&1; then
             say "@$WHO you already have a repo: https://github.com/$repo (if you cannot see it, accept the invite at https://github.com/$repo/invitations). Your clock started when it was created and does not restart."
@@ -60,5 +74,8 @@ jobs:
             say "@$WHO your repo exists but the invite failed. Tell the organisers in the WhatsApp group right away."
             exit 1
           fi
+          for mate in $(echo "$line" | awk '{for (i=2; i<=NF; i++) print $i}'); do
+            gh api -X PUT "repos/$repo/collaborators/$mate" -f permission=push >/dev/null || echo "could not invite $mate"
+          done
           end=$(( now + WINDOW_HOURS * 3600 )); [ "$end" -gt "$close" ] && end=$close
-          say "@$WHO your clock has started. **Step 1:** accept the invite at https://github.com/$repo/invitations (it is also in your email). **Step 2:** open https://github.com/$repo and read the README. Your cutoff is **$(TZ=Asia/Kolkata date -d "@$end" '+%H:%M:%S IST')**. Only pushes before then count. Good luck, and mind the lagoon."
+          say "@$WHO your clock has started. **Step 1:** accept the invite at https://github.com/$repo/invitations (it is also in your email, and your registered teammates get one too). **Step 2:** open https://github.com/$repo and read the README. Your cutoff is **$(TZ=Asia/Kolkata date -d "@$end" '+%H:%M:%S IST')**. Only pushes before then count. Good luck, and mind the lagoon."
