@@ -1,6 +1,6 @@
 # Isla ReRo: Round 1 of the ReRo Online Hackathon 2026
 
-Round 1 is open from **10:00 to 22:00 IST on Friday 13 November 2026**.
+Round 1 is open from **11:00 to 23:00 IST on Friday 13 November 2026**.
 
 ## How to start (team leader only)
 
@@ -12,7 +12,7 @@ Round 1 is open from **10:00 to 22:00 IST on Friday 13 November 2026**.
 ## Before you click
 
 - **Your 3 hours start the moment you click.** They do not pause and they do not restart.
-- Nothing pushed after 22:00 IST counts, so start by **19:00 IST** if you want your full 3 hours.
+- Nothing pushed after 23:00 IST counts, so start by **20:00 IST** if you want your full 3 hours.
 - **Only the registered team leader's account can start.** Registered teammates are invited to the same repo automatically.
 - You need Python 3.9 or newer with `numpy` (and `matplotlib` for pictures), or a GitHub Codespace.
 - AI tools are allowed.
