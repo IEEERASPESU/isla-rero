@@ -2,7 +2,7 @@
 # template and invites the person who opened the issue. Replaces GitHub Classroom (retired Aug 2026).
 # Needs one repo secret, ORG_TOKEN: a classic personal access token with the "repo" scope, made by
 # an org owner who can also read the template repo.
-# Needs one repo variable, TEAMS: one line per team, GitHub usernames separated by spaces, the
+# Needs one more repo secret, TEAMS (a secret so the list never shows in the public run logs): one line per team, GitHub usernames separated by spaces, the
 # team leader FIRST. Only a leader can start. Teammates on the same line are invited to the repo.
 name: Start
 on:
@@ -16,7 +16,7 @@ on:
 permissions:
   issues: write
 env:
-  OPEN_AT: "2026-11-13T11:00:00+05:30"
+  OPEN_AT: "2026-11-13T09:00:00+05:30"
   CLOSE_AT: "2026-11-13T23:00:00+05:30"
   WINDOW_HOURS: "3"
   ORG: IEEERASPESU
@@ -34,7 +34,7 @@ jobs:
           WHO: ${{ github.event.issue.user.login || inputs.user }}
           ISSUE: ${{ github.event.issue.number }}
           ISSUE_TOKEN: ${{ github.token }}
-          TEAMS: ${{ vars.TEAMS }}
+          TEAMS: ${{ secrets.TEAMS }}
         run: |
           set -u
           say() {
